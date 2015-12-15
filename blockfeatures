@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+import json
+
+import rasterio
+from shapely.geometry import box
+import click
+import cligj
+
+
+def block_features(raster):
+    with rasterio.drivers():
+        with rasterio.open(raster, 'r') as src:
+            for ij, window in src.block_windows():
+                wb = src.window_bounds(window)
+                feature = {
+                    'type': 'Feature',
+                    'properties': {
+                        'window': str(window),
+                        'ij': str(ij)},
+                    'geometry': box(*wb).__geo_interface__}
+                yield feature
+
+
+@click.command()
+@click.argument('raster', required=True)
+@cligj.sequence_opt
+@cligj.use_rs_opt
+def cli(raster, sequence, use_rs):
+    """Create GeoJSON polygon features of the internal tile blocks
+    for any rasterio-supported raster.
+
+    Usage: blockfeatures image.tif > blocks.geojson
+
+    Default, echo a FeatureCollection.
+    Optionally, echo a sequence of features. """
+
+    if sequence:
+        for feature in block_features(raster):
+            if use_rs:
+                click.echo(b'\x1e', nl=False)
+            click.echo(json.dumps(feature))
+    else:
+        click.echo(json.dumps(
+            {'type': 'FeatureCollection',
+                'features': list(block_features(raster))}))
+
+
+if __name__ == "__main__":
+    cli()
