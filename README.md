@@ -5,13 +5,13 @@ Create GeoJSON polygon features for internal raster tile block
 ```
 Usage: blockfeatures [OPTIONS] RASTER
 
-  Create GeoJSON polygon features of the internal tile blocks
-  for any rasterio-supported raster.
+  Create GeoJSON polygon features of the internal tile blocks for any
+  rasterio-supported raster.
 
-    Usage: blockfeatures image.tif > blocks.geojson
+  Usage: blockfeatures image.tif > blocks.geojson
 
-  Default, echo a FeatureCollection.
-  Optionally, echo a sequence of features.
+  Default, echo a FeatureCollection. Optionally, echo a sequence of
+  features.
 
 Options:
   --sequence / --no-sequence  Write a LF-delimited sequence of texts
@@ -22,6 +22,9 @@ Options:
                               in a sequence as per http://tools.ietf.org/html
                               /draft-ietf-json-text-sequence-13 (default is
                               False).
+  --force                     Force the creation of feautures based on
+                              rasterio's block_windows even if the raster is
+                              not tiled
   --help                      Show this message and exit.
 ```
 
