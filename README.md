@@ -2,7 +2,8 @@
 
 Create GeoJSON polygon features for internal raster tile block
 
-```Usage: blockfeatures [OPTIONS] RASTER
+```
+Usage: blockfeatures [OPTIONS] RASTER
 
   Create GeoJSON polygon features of the internal tile blocks
   for any rasterio-supported raster.
