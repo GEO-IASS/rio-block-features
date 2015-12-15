@@ -7,10 +7,18 @@ import click
 import cligj
 
 
-def block_features(raster):
+class NotTiledError(click.BadParameter):
+    pass
+
+
+def block_features(raster, force=False):
     with rasterio.drivers():
         with rasterio.open(raster, 'r') as src:
             for ij, window in src.block_windows():
+                if not force and not src.profile['tiled']:
+                    raise NotTiledError(
+                        "raster does not have internal tiling, "
+                        "use --force to show block windows")
                 wb = src.window_bounds(window)
                 feature = {
                     'type': 'Feature',
@@ -25,7 +33,10 @@ def block_features(raster):
 @click.argument('raster', required=True)
 @cligj.sequence_opt
 @cligj.use_rs_opt
-def cli(raster, sequence, use_rs):
+@click.option("--force/", is_flag=True, default=False,
+              help="Force the creation of feautures based on rasterio's "
+                   "block_windows even if the raster is not tiled")
+def cli(raster, sequence, use_rs, force):
     """Create GeoJSON polygon features of the internal tile blocks
     for any rasterio-supported raster.
 
@@ -35,14 +46,14 @@ def cli(raster, sequence, use_rs):
     Optionally, echo a sequence of features. """
 
     if sequence:
-        for feature in block_features(raster):
+        for feature in block_features(raster, force):
             if use_rs:
                 click.echo(b'\x1e', nl=False)
             click.echo(json.dumps(feature))
     else:
         click.echo(json.dumps(
             {'type': 'FeatureCollection',
-                'features': list(block_features(raster))}))
+                'features': list(block_features(raster, force))}))
 
 
 if __name__ == "__main__":
