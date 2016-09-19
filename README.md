@@ -1,3 +1,5 @@
+# Rasterio has a builtin `rio blocks` command now. Use that instead.
+
 # block-features
 
 Create GeoJSON polygon features for internal raster tile block
